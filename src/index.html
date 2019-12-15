@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+      integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+      crossorigin=""></script>
+    <link href="https://fonts.googleapis.com/css?family=Khand&display=swap" rel="stylesheet">
+  </head>
+  <body class="app">
+    <header class="m-header">
+      <div class="u-title">STONES UNTERNED</div>
+    </header>
+    <div class="map-container" id="map"></div>
+    <div class="m-control J_control">
+      <div class="m-actions">
+        <a href="javascript:;" class="m-action J_display"></a>
+        <div class="m-words">
+          <span>DISCOVERY PANEL</span>
+        </div>  
+      </div>
+      <div class="m-control-container">
+        <div class="m-control-panel m-panel1">
+          <div class="u-panel-title">
+            <span class="title">DISPLAY SETTINGS</span>
+          </div>
+          <div class="u-panel-content">
+            <div class="u-row">
+              <div class="u-switcher">
+                <a href="javascript:;" class="u-item">PLANE</a>
+                <a href="javascript:;" class="u-center u-choose">
+                  <span href="javascript:;" class="slider f-left"></span>
+                </a>
+                <a href="javascript:;" class="u-item">STACK</a>
+              </div>
+            </div>
+            <div class="u-row">
+              <div class="u-switcher f-disabled">
+                <a href="javascript:;" class="u-item">MAGNITUDE</a>
+                <a href="javascript:;" class="u-center u-choose">
+                  <span href="javascript:;" class="slider f-left"></span>
+                </a>
+                <a href="javascript:;" class="u-item">FREQUENCY</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="m-control-panel m-panel-shrink m-panel2">
+          <div class="u-panel-title">
+            <span class="title">PAST 31 DAY'S FREQ</span>
+            <!-- <span class="subtitle">MOMENT <span class="J_now"></span></span> -->
+          </div>
+          <div class="u-panel-content" id="frequency"></div>
+        </div>
+        <div class="m-control-panel m-panel-shrink m-panel3 J_panel3">
+          <div class="u-panel-title">
+            <span class="title">MAGNITUDE</span>
+            <span class="subtitle">QUANTITY</span>
+          </div>
+          <div class="u-panel-content" id="magnitude"></div>
+        </div>
+        <div class="m-control-panel m-panel-shrink m-panel4 J_panel4">
+          <div class="u-panel-title">
+            <span class="title">DEPTH(KM)</span>
+            <span class="subtitle">QUANTITY</span>
+          </div>
+          <div class="u-panel-content" id="depth">
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,200 @@
+import $ from 'jquery'
+import _ from 'underscore'
+import { dataScale, colorScale, convertFeatureToData, isInRange } from './utils'
+import { PopupContent } from './popup-content'
+import { renderFrequency, renderMagnitude, renderDepth } from './graph'
+import { getPlaneDataset } from './dataset'
+import './lib/cities'
+
+const colorList = [
+  '#34B6B7',
+  '#4AC5AF',
+  '#5FD3A6',
+  '#7BE39E',
+  '#A1EDB8',
+  '#CEF8D6',
+]
+
+const L = window.L
+
+const launchMap = (() => {
+  let pointLayer = null
+  let lineLayer = null
+  let cityCircleLayer = null
+  let popupLayer = null
+  let lastClickFeatureId = null
+  let clickCount = 0
+  let clickTriggerFromPoint = false
+
+  const map = L.map('map').setView([8, 17], 3)
+  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiempoY2gxMjMiLCJhIjoiY2l1cDd4cWduMDAzMDJvbDhrY2Zta3NkNCJ9.3FmRDWqp0TXkgdDIWnM-vw', {
+    maxZoom: 10,
+    minZoom: 2,
+    id: 'mapbox/dark-v10',
+  }).addTo(map)
+
+  const initPointClick = () => {
+    hideLine()
+    hidePopup()
+    lastClickFeatureId = null
+    clickCount = 0
+  }
+
+  const showPopup = (feature) => {
+    const { geometry } = feature
+    const latlng = [geometry.coordinates[1], geometry.coordinates[0]]
+    popupLayer = L.popup({
+      closeButton: false,
+      className: 'map-popup',
+      minWidth: '194',
+      maxWidth: '194',
+      autoClose: false,
+    }).setContent(PopupContent(feature))
+      .setLatLng(latlng)
+      .openOn(map)
+  }
+
+  const hidePopup = () => {
+    popupLayer && map.removeLayer(popupLayer)
+  }
+
+  const showLine = (from, to) => {
+    lineLayer = L.polyline([from, to], {
+      color: '#CA8802',
+      pane: 'tilePane',
+    }).addTo(map)
+    cityCircleLayer = L.circle(to, {
+      radius: 5000,
+      color: '#CA8802',
+      fill: true,
+      fillColor: '#CA8802',
+      fillOpacity: 1,
+    }).addTo(map)
+  }
+
+  const hideLine = () => {
+    lineLayer && map.removeLayer(lineLayer)
+    cityCircleLayer && map.removeLayer(cityCircleLayer)
+  }
+
+  const getFilter = (filterObject) => {
+    let filter = () => true
+    if (_.isObject(filterObject)) {
+      switch (filterObject.type) {
+        case 'timestamp':
+          filter = ({ properties: { time } }) => isInRange(time, filterObject.range[0], filterObject.range[1], true)
+          break
+        default:
+          filter = () => true
+          break
+      }
+    }
+
+    return filter
+  }
+
+  map.on('popupopen', (ev) => {
+    const { lat, lng } = ev.popup._latlng
+    $('.J_closestTo').text(window.Cities.closestTo(lat, lng)[0].name)
+  })
+
+  map.on('click', () => {
+    if (clickTriggerFromPoint) {
+      clickTriggerFromPoint = false
+      return
+    }
+    initPointClick()
+  })
+
+  return ({ data, size }, filterObject) => {
+    if (pointLayer) {
+      map.removeLayer(pointLayer)
+    }
+
+    initPointClick()
+
+    pointLayer = L.geoJSON(data, {
+      pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: dataScale(feature.properties.mag, size, [0, 16]),
+          fillColor: colorScale(feature.properties.mag, size, colorList),
+          stroke: false,
+          fillOpacity: 0.5,
+        })
+      },
+      filter: getFilter(filterObject),
+    })
+
+    pointLayer.addEventListener('click', (e) => {
+      clickTriggerFromPoint = true
+      const { layer } = e
+      const { feature } = layer
+      const { geometry } = feature
+      const id = feature.id
+      const pointLatlngArray = [geometry.coordinates[1], geometry.coordinates[0]]
+      const city = window.Cities.closestTo(...pointLatlngArray)[0]
+      const cityLatlngArray = [city.point.lat, city.point.lng]
+
+      if (id !== lastClickFeatureId) {
+        clickCount = 0
+        lastClickFeatureId = id
+        hideLine()
+      }
+
+      clickCount += 1
+
+      switch (clickCount) {
+        case 1:
+          showLine(pointLatlngArray, cityLatlngArray)
+          break
+        case 2:
+          showPopup(feature)
+          break
+        default:
+          initPointClick()
+          break
+      }
+    })
+
+    pointLayer.addTo(map)
+  }
+})()
+
+const launchGraph = ({ data }) => {
+  const parsedData = data.features.map(feature => convertFeatureToData(feature))
+  renderFrequency(parsedData)
+  renderMagnitude(parsedData)
+  renderDepth(parsedData)
+}
+
+const listen = () => {
+  $('.J_display').on('click', () => {
+    if ($('.J_control').hasClass('f-hide')) {
+      $('.J_control').removeClass('f-hide')
+    } else {
+      $('.J_control').addClass('f-hide')
+    }
+  })
+
+  $(window).on('filter', (_, filterObject) => {
+    getPlaneDataset().then(dataset => {
+      launchMap(dataset, filterObject)
+    })
+  })
+
+  $(window).on('reset-filter', () => {
+    getPlaneDataset().then(dataset => {
+      launchMap(dataset)
+    })
+  })
+}
+
+const start = () => {
+  listen()
+  getPlaneDataset().then(dataset => {
+    launchMap(dataset)
+    launchGraph(dataset)
+  })
+}
+
+start()
