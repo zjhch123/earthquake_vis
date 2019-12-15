@@ -113,12 +113,11 @@ const draw = (data) => {
 
       isDrawing = false
 
-      const [startX, startY] = drawStartPosition
-      const [endX, endY] = [sketch.pmouseX, sketch.pmouseY]
-      drawStartPosition = [Math.min(startX, endX), Math.min(startY, endY)]
+      const [ startX ] = drawStartPosition
+      const endX = sketch.pmouseX
 
       selectedTimestamps = data
-        .filter(({ x }) => isInRange(x, startX - barWidth, endX))
+        .filter(({ x }) => isInRange(x, Math.min(startX, endX) - barWidth, Math.max(startX, endX)))
         .map(({ timestamp }) => timestamp)
 
       if (selectedTimestamps.length === 0 || startX === endX) {
