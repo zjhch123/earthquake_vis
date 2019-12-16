@@ -1,14 +1,16 @@
 import $ from 'jquery'
+import _ from 'underscore'
 import { dataScale, isInRange } from '../utils'
 import P5 from 'p5'
 import 'p5.js-svg'
 
 const targetDOMId = '#frequency'
+let p5inst = null
 
 const draw = (data) => {
   const sortedByCount = data.slice(0).sort((a, b) => a.count - b.count)
-  const minCount = sortedByCount[0].count
-  const maxCount = sortedByCount.slice(-1)[0].count
+  const minCount = _.first(sortedByCount).count
+  const maxCount = _.last(sortedByCount).count
 
   const $dom = $(targetDOMId)
   const domWidth = $dom.width()
@@ -32,7 +34,7 @@ const draw = (data) => {
 
     sketch.setup = () => {
       sketch.createCanvas(domWidth, domHeight, sketch.SVG)
-      sketch.frameRate(30)
+      sketch.frameRate(60)
     }
 
     sketch.draw = () => {
@@ -101,7 +103,7 @@ const draw = (data) => {
     }
 
     sketch.mousePressed = (e) => { // 初始化
-      if (!$.contains($dom[0], e.target)) { return }
+      if (window.IS_FILTERING || !$.contains($dom[0], e.target)) { return }
 
       isDrawing = true
       drawStartPosition = [sketch.pmouseX, sketch.pmouseY]
@@ -109,6 +111,12 @@ const draw = (data) => {
     }
 
     sketch.mouseReleased = () => {
+      if (window.IS_FILTERING) {
+        window.IS_FILTERING = false
+        $(window).trigger('reset-filter')
+        selectedTimestamps = []
+        return
+      }
       if (!isDrawing) { return }
 
       isDrawing = false
@@ -129,15 +137,28 @@ const draw = (data) => {
 
       $(window).trigger('filter', {
         type: 'timestamp',
-        range: [selectedTimestamps[0], selectedTimestamps.slice(-1)[0] + 24 * 60 * 60 * 1000 - 1], // range
+        range: [
+          _.first(selectedTimestamps),
+          _.last(selectedTimestamps) + 24 * 60 * 60 * 1000 - 1,
+        ], // range
       })
     }
   }
 
-  new P5(inst, $dom[0])
+  p5inst = new P5(inst, $dom[0])
 }
 
 export const renderFrequency = (parsedData) => {
+  if (p5inst) {
+    p5inst.remove()
+    p5inst = null
+    $(targetDOMId).empty()
+  }
+
+  if (parsedData.length === 0) {
+    return
+  }
+
   const timestampList = parsedData.map(({ timestamp }) => timestamp - timestamp % (24 * 60 * 60 * 1000)).sort((a, b) => a - b)
 
   let prev = 0

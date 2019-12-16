@@ -84,6 +84,12 @@ const launchMap = (() => {
         case 'timestamp':
           filter = ({ properties: { time } }) => isInRange(time, filterObject.range[0], filterObject.range[1], true)
           break
+        case 'magnitude':
+          filter = ({ properties: { mag } }) => isInRange(mag, filterObject.range[0][0], filterObject.range[1][1], true)
+          break
+        case 'depth':
+          filter = ({ geometry: { coordinates } }) => isInRange(coordinates[2], filterObject.range[0][0], filterObject.range[1][1], true)
+          break
         default:
           filter = () => true
           break
@@ -160,11 +166,32 @@ const launchMap = (() => {
   }
 })()
 
-const launchGraph = ({ data }) => {
+const launchGraph = ({ data }, filterObject, source) => {
   const parsedData = data.features.map(feature => convertFeatureToData(feature))
-  renderFrequency(parsedData)
-  renderMagnitude(parsedData)
-  renderDepth(parsedData)
+  let graphs = [renderFrequency, renderMagnitude, renderDepth]
+  let filterFunc = () => true
+
+  if (_.isObject(filterObject)) {
+    switch (filterObject.type) {
+      case 'timestamp':
+        graphs = [renderMagnitude, renderDepth]
+        filterFunc = ({ timestamp }) => isInRange(timestamp, filterObject.range[0], filterObject.range[1], true)
+        break
+      case 'magnitude':
+        graphs = [renderFrequency, renderDepth]
+        filterFunc = ({ magnitude }) => isInRange(magnitude, filterObject.range[0][0], filterObject.range[1][1], true)
+        break
+      case 'depth':
+        graphs = [renderFrequency, renderMagnitude]
+        filterFunc = ({ depth }) => isInRange(depth, filterObject.range[0][0], filterObject.range[1][1], true)
+        break
+      default: graphs = []; break
+    }
+  }
+
+  const filteredData = parsedData.filter(filterFunc)
+
+  graphs.forEach(render => render(filteredData))
 }
 
 const listen = () => {
@@ -179,13 +206,17 @@ const listen = () => {
   $(window).on('filter', (_, filterObject) => {
     getPlaneDataset().then(dataset => {
       launchMap(dataset, filterObject)
+      launchGraph(dataset, filterObject)
     })
+    window.IS_FILTERING = true
   })
 
-  $(window).on('reset-filter', () => {
+  $(window).on('reset-filter', (_, source) => {
     getPlaneDataset().then(dataset => {
       launchMap(dataset)
+      launchGraph(dataset, undefined, source)
     })
+    window.IS_FILTERING = false
   })
 }
 

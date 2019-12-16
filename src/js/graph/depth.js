@@ -1,5 +1,6 @@
+import _ from 'underscore'
 import $ from 'jquery'
-import { dataScale } from '../utils'
+import { dataScale, isInRange } from '../utils'
 import P5 from 'p5'
 import 'p5.js-svg'
 
@@ -7,6 +8,7 @@ window.$ = $
 
 const targetDOMId = '#depth'
 const containerDOM = '.J_panel4'
+let p5inst = null
 
 const textLabels = [
   '< 70',
@@ -20,10 +22,16 @@ const levelLabels = [
   'deep',
 ]
 
+const filterRanges = [
+  [0, 70],
+  [70, 300],
+  [300, 700],
+]
+
 const draw = (data) => {
-  const sortedByCount = data.slice(0).sort((a, b) => a - b)
-  const minCount = sortedByCount[0]
-  const maxCount = sortedByCount.slice(-1)[0]
+  const sortedByCount = data.slice(0).sort((a, b) => a.count - b.count)
+  const minCount = _.first(sortedByCount).count
+  const maxCount = _.last(sortedByCount).count
 
   const $dom = $(targetDOMId)
   const $container = $(containerDOM)
@@ -48,18 +56,39 @@ const draw = (data) => {
   const barMaxWidth = dataTextStartX - smallFontLeft - barPaddingLeft
 
   const inst = (sketch) => {
+    let isDrawing = false
+    let drawStartPosition = [0, 0]
+    let selectedDepth = []
+
     sketch.setup = () => {
       sketch.createCanvas(domWidth, domHeight, sketch.SVG)
+      sketch.frameRate(60)
     }
 
     sketch.draw = () => {
       sketch.clear()
+      sketch.push()
       sketch.translate(paddingLeftRight, paddingTopBottom)
       sketch.noStroke()
       sketch.fill('#31AFD3')
       for (let i = 0; i < dataCount; i += 1) {
-        const value = dataScale(data[i], [minCount, maxCount], [barMaxWidth * 0.05, barMaxWidth * 0.95])
+        const count = data[i].count
+        const value = dataScale(count, [minCount, maxCount], [barMaxWidth * 0.05, barMaxWidth * 0.95])
         const y = i * barSplitHeight + i * barHeight
+        const offsetY = y + paddingTopBottom
+        data[i].y = offsetY
+
+        if (selectedDepth.length > 0) {
+          if (selectedDepth.includes(i)) {
+            sketch.fill('rgb(49,175,211)')
+          } else {
+            sketch.fill('rgba(49,175,211,.2)')
+          }
+        } else {
+          // 没有画好 或者 啥也没画
+          sketch.fill('rgb(49,175,211)')
+        }
+
         // 柱子
         sketch.rect(smallFontLeft + barPaddingLeft, y, value, barHeight)
 
@@ -67,7 +96,7 @@ const draw = (data) => {
         // 右侧文字
         sketch.fill('#000000')
         sketch.textFont('Khand', binFontSize)
-        sketch.text(data[i].toLocaleString(), dataTextStartX, y + binFontSize / 2 + barHeight / 2 - 2) // Magic number
+        sketch.text(count.toLocaleString(), dataTextStartX, y + binFontSize / 2 + barHeight / 2 - 2) // Magic number
 
         // 左侧文字
         sketch.textFont('Khand', smallFontSize)
@@ -79,16 +108,85 @@ const draw = (data) => {
         sketch.text(levelLabels[i], barPaddingLeft + smallFontLeft + 10, y + smallFontSize / 2 + barHeight / 2 - 2) // Magic number
         sketch.pop()
       }
+      sketch.pop()
 
-      sketch.noLoop()
+      if (isDrawing) { // 正在画
+        sketch.push()
+        sketch.fill('rgba(154, 175, 254, 0.2)')
+        sketch.drawingContext.setLineDash([5, 5])
+        sketch.rect(
+          drawStartPosition[0],
+          drawStartPosition[1],
+          sketch.pmouseX - drawStartPosition[0],
+          sketch.pmouseY - drawStartPosition[1]
+        )
+        sketch.pop()
+      }
+    }
+
+    sketch.mousePressed = (e) => { // 初始化
+      if (window.IS_FILTERING || !$.contains($dom[0], e.target)) { return }
+
+      isDrawing = true
+      drawStartPosition = [sketch.pmouseX, sketch.pmouseY]
+      selectedDepth = []
+    }
+
+    sketch.mouseReleased = () => {
+      if (window.IS_FILTERING) {
+        window.IS_FILTERING = false
+        selectedDepth = []
+        $(window).trigger('reset-filter')
+        return
+      }
+      if (!isDrawing) { return }
+
+      isDrawing = false
+
+      const [ , startY ] = drawStartPosition
+      const endY = sketch.pmouseY
+
+      selectedDepth = data
+        .filter(({ y }) => isInRange(y, Math.min(startY, endY) - barHeight, Math.max(startY, endY)))
+        .map(({ id }) => id)
+
+      if (selectedDepth.length === 0 || startY === endY) {
+        // 啥也没画
+        $(window).trigger('reset-filter')
+        selectedDepth = []
+        return
+      }
+
+      $(window).trigger('filter', {
+        type: 'depth',
+        range: [
+          filterRanges[_.first(selectedDepth)],
+          filterRanges[_.last(selectedDepth)],
+        ],
+      })
     }
   }
 
-  new P5(inst, $dom[0])
+  p5inst = new P5(inst, $dom[0])
 }
 
 export const renderDepth = (parsedData) => {
-  const dataset = [0, 0, 0]
+  if (p5inst) {
+    p5inst.remove()
+    p5inst = null
+    $(targetDOMId).empty()
+  }
+
+  if (parsedData.length === 0) {
+    return
+  }
+
+  const dataset = [
+    { id: 0, count: 0, y: 0 },
+    { id: 1, count: 0, y: 0 },
+    { id: 2, count: 0, y: 0 },
+  ]
+
   parsedData.forEach(({ depth }) => {
     let index = 0
     if (depth < 70) {
@@ -98,7 +196,7 @@ export const renderDepth = (parsedData) => {
     } else {
       index = 2
     }
-    dataset[index] += 1
+    dataset[index].count += 1
   })
 
   draw(dataset)
