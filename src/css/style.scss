@@ -12,6 +12,70 @@ html, body {
     font-family: inherit;
   }
 }
+.outer_container {
+  z-index: 2;
+  @keyframes jump {
+    0% {
+      transform: translateY(-3px)
+    }
+    100% {
+      transform: translateY(3px)
+    }
+  }
+  .m-card {
+    position: absolute;
+    top: 203px;
+    right: 106px;
+    width: 538px;
+    height: 566px;
+    box-shadow: 0 4px 4px 4px rgba(0, 0, 0, 0.5);
+    background-color: #ffffff;
+    .u-title {
+      font-family: Khand;
+      font-size: 30px;
+      font-weight: bold;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: normal;
+      letter-spacing: normal;
+      color: black;
+      text-align: center;
+      margin: 48px 0 33px;
+      pointer-events: none;
+    }
+    .u-content {
+      font-family: Khand;
+      font-size: 25px;
+      font-weight: normal;
+      font-stretch: normal;
+      font-style: normal;
+      line-height: normal;
+      letter-spacing: normal;
+      color: #000000;
+      width: 451px;
+      margin: auto;
+      pointer-events: none;
+    }
+    .u-obj {
+      width: 54px;
+      height: 54px;
+      display: block;
+      margin: 20px auto 0;
+      background-image: url('../assets/scroll_down.png');
+      background-size: 54px 100%;
+      background-repeat: no-repeat;
+      animation: jump 0.6s linear infinite alternate-reverse;
+    }
+  }
+}
+.inner_container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
 
 .app {
   .m-header {

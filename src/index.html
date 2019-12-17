@@ -9,65 +9,98 @@
       integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
       crossorigin=""></script>
     <link href="https://fonts.googleapis.com/css?family=Khand&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.8/fullpage.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.8/fullpage.min.css" rel="stylesheet">
   </head>
   <body class="app">
-    <header class="m-header">
-      <div class="u-title">STONES UNTERNED</div>
-    </header>
-    <div class="map-container" id="map"></div>
-    <div class="m-control J_control f-hide">
-      <div class="m-actions">
-        <a href="javascript:;" class="m-action J_display"></a>
-        <div class="m-words">
-          <span>DISCOVERY PANEL</span>
-        </div>  
+    <div class="outer_container" id="app_start">
+      <div class="section">
+        <div class="m-card">
+          <p class="u-title">Earthquakes: the 5 biggest in 21st century</p>
+          <div class="u-content">Seismologists have noticed an increase in high-magnitude, high-impact earthquakes in the last decade, says Mike, but there are few theories to explain this. “Energy released by earthquakes on a global scale in the last decade is much more than in the previous 25 to30 years,” he said. “However, the period 1952-1965 had equally as much energy released.”</div>
+          <span class="u-obj"></span>
+        </div>
       </div>
-      <div class="m-control-container">
-        <div class="m-control-panel m-panel1">
-          <div class="u-panel-title">
-            <span class="title">DISPLAY SETTINGS</span>
-          </div>
-          <div class="u-panel-content">
-            <div class="u-row">
-              <div class="u-switcher f-disabled">
-                <a href="javascript:;" class="u-item">PLANE</a>
-                <a href="javascript:;" class="u-center u-choose">
-                  <span href="javascript:;" class="slider f-left"></span>
-                </a>
-                <a href="javascript:;" class="u-item">STACK</a>
+      <div class="section">
+        <div class="m-card">
+          
+        </div>
+      </div>
+      <div class="section">
+        <div class="m-card">
+
+        </div>
+      </div>
+      <div class="section">
+        <div class="m-card">
+
+        </div>
+      </div>
+      <div class="section">
+        <div class="m-card">
+
+        </div>
+      </div>
+    </div>
+    <div class="inner_container">
+      <header class="m-header">
+        <div class="u-title">STONES UNTERNED</div>
+      </header>
+      <div class="map-container" id="map"></div>
+      <div class="m-control J_control f-hide">
+        <div class="m-actions">
+          <a href="javascript:;" class="m-action J_display"></a>
+          <div class="m-words">
+            <span>DISCOVERY PANEL</span>
+          </div>  
+        </div>
+        <div class="m-control-container">
+          <div class="m-control-panel m-panel1">
+            <div class="u-panel-title">
+              <span class="title">DISPLAY SETTINGS</span>
+            </div>
+            <div class="u-panel-content">
+              <div class="u-row">
+                <div class="u-switcher f-disabled">
+                  <a href="javascript:;" class="u-item">PLANE</a>
+                  <a href="javascript:;" class="u-center u-choose">
+                    <span href="javascript:;" class="slider f-left"></span>
+                  </a>
+                  <a href="javascript:;" class="u-item">STACK</a>
+                </div>
+              </div>
+              <div class="u-row">
+                <div class="u-switcher f-disabled">
+                  <a href="javascript:;" class="u-item">MAGNITUDE</a>
+                  <a href="javascript:;" class="u-center u-choose">
+                    <span href="javascript:;" class="slider f-left"></span>
+                  </a>
+                  <a href="javascript:;" class="u-item">FREQUENCY</a>
+                </div>
               </div>
             </div>
-            <div class="u-row">
-              <div class="u-switcher f-disabled">
-                <a href="javascript:;" class="u-item">MAGNITUDE</a>
-                <a href="javascript:;" class="u-center u-choose">
-                  <span href="javascript:;" class="slider f-left"></span>
-                </a>
-                <a href="javascript:;" class="u-item">FREQUENCY</a>
-              </div>
+          </div>
+          <div class="m-control-panel m-panel-shrink m-panel2">
+            <div class="u-panel-title">
+              <span class="title">PAST 31 DAY'S FREQ</span>
+              <!-- <span class="subtitle">MOMENT <span class="J_now"></span></span> -->
             </div>
+            <div class="u-panel-content" id="frequency"></div>
           </div>
-        </div>
-        <div class="m-control-panel m-panel-shrink m-panel2">
-          <div class="u-panel-title">
-            <span class="title">PAST 31 DAY'S FREQ</span>
-            <!-- <span class="subtitle">MOMENT <span class="J_now"></span></span> -->
+          <div class="m-control-panel m-panel-shrink m-panel3 J_panel3">
+            <div class="u-panel-title">
+              <span class="title">MAGNITUDE</span>
+              <span class="subtitle">QUANTITY</span>
+            </div>
+            <div class="u-panel-content" id="magnitude"></div>
           </div>
-          <div class="u-panel-content" id="frequency"></div>
-        </div>
-        <div class="m-control-panel m-panel-shrink m-panel3 J_panel3">
-          <div class="u-panel-title">
-            <span class="title">MAGNITUDE</span>
-            <span class="subtitle">QUANTITY</span>
-          </div>
-          <div class="u-panel-content" id="magnitude"></div>
-        </div>
-        <div class="m-control-panel m-panel-shrink m-panel4 J_panel4">
-          <div class="u-panel-title">
-            <span class="title">DEPTH(KM)</span>
-            <span class="subtitle">QUANTITY</span>
-          </div>
-          <div class="u-panel-content" id="depth">
+          <div class="m-control-panel m-panel-shrink m-panel4 J_panel4">
+            <div class="u-panel-title">
+              <span class="title">DEPTH(KM)</span>
+              <span class="subtitle">QUANTITY</span>
+            </div>
+            <div class="u-panel-content" id="depth">
+            </div>
           </div>
         </div>
       </div>
