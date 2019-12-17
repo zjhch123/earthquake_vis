@@ -36,7 +36,6 @@ config.module.rules.push({
     },
     'sass-loader'
   ],
-  exclude: /node_modules/
 });
 
 config.plugins.push(

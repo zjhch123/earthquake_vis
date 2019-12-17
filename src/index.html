@@ -9,8 +9,27 @@
       integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
       crossorigin=""></script>
     <link href="https://fonts.googleapis.com/css?family=Khand&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.8/fullpage.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.8/fullpage.min.css" rel="stylesheet">
+    <script>
+    window.config = {
+      sliders: [
+        {
+          image: 'https://image.hduzplus.xyz/image/1576595227561.png',
+          latlng: [1, 1],
+          zoom: 5,
+        },
+        {
+          image: '',
+          latlng: [10, 10],
+          zoom: 5,
+        },
+        {
+          image: '',
+          latlng: [10, 1],
+          zoom: 5,
+        },
+      ]
+    }
+    </script>
   </head>
   <body class="app">
     <div class="outer_container" id="app_start">
@@ -23,26 +42,29 @@
       </div>
       <div class="section">
         <div class="m-card">
-          
+          <img class="J_slider u-card-img">
         </div>
       </div>
       <div class="section">
         <div class="m-card">
-
+          <img class="J_slider u-card-img">
         </div>
       </div>
       <div class="section">
         <div class="m-card">
-
+          <img class="J_slider u-card-img">
         </div>
       </div>
       <div class="section">
         <div class="m-card">
-
+          <div class="u-actions">
+            <a href="javascript:;" class="J_replay replay">REPLAY</a>
+            <a href="javascript:;" class="J_discover discover">DISCOVER</a>
+          </div>
         </div>
       </div>
     </div>
-    <div class="inner_container">
+    <div class="inner_container f-fixed J_inner_container">
       <header class="m-header">
         <div class="u-title">STONES UNTERNED</div>
       </header>

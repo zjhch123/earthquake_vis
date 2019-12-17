@@ -24,7 +24,8 @@ html, body {
   }
   .m-card {
     position: absolute;
-    top: 203px;
+    top: 50%;
+    margin-top: -269px;
     right: 106px;
     width: 538px;
     height: 566px;
@@ -66,15 +67,48 @@ html, body {
       background-repeat: no-repeat;
       animation: jump 0.6s linear infinite alternate-reverse;
     }
+    .u-card-img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .u-actions {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 72px;
+      width: 100%;
+      display: flex;
+      a {
+        width: 100%;
+        height: 100%;
+        line-height: 72px;
+        display: block;
+        flex: 1;
+        text-align: center;
+        font-size: 30px;
+        font-weight: bolder;
+        text-decoration: none;
+        color: white;
+      }
+      .replay {
+        background: #B0B0B0;
+      }
+      .discover {
+        background: #747474;
+      }
+    }
   }
 }
 .inner_container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
+  &.f-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
 }
 
 .app {

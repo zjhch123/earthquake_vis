@@ -1,9 +1,12 @@
 import $ from 'jquery'
 import _ from 'underscore'
+import Fullpage from 'fullpage.js'
 import { dataScale, colorScale, convertFeatureToData, isInRange } from './utils'
 import { PopupContent } from './popup-content'
 import { renderFrequency, renderMagnitude, renderDepth } from './graph'
 import { getPlaneDataset } from './dataset'
+
+import 'fullpage.js/dist/fullpage.css'
 import './lib/cities'
 
 const colorList = [
@@ -17,6 +20,9 @@ const colorList = [
 
 const L = window.L
 
+let map = null
+let fullpageInst = null
+
 const launchMap = (() => {
   let pointLayer = null
   let lineLayer = null
@@ -26,7 +32,7 @@ const launchMap = (() => {
   let clickCount = 0
   let clickTriggerFromPoint = false
 
-  const map = L.map('map').setView([8, 17], 3)
+  map = L.map('map').setView([8, 17], 3)
   L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiempoY2gxMjMiLCJhIjoiY2l1cDd4cWduMDAzMDJvbDhrY2Zta3NkNCJ9.3FmRDWqp0TXkgdDIWnM-vw', {
     maxZoom: 10,
     minZoom: 2,
@@ -166,7 +172,7 @@ const launchMap = (() => {
   }
 })()
 
-const launchGraph = ({ data }, filterObject, source) => {
+const launchGraph = ({ data }, filterObject) => {
   const parsedData = data.features.map(feature => convertFeatureToData(feature))
   let graphs = [renderFrequency, renderMagnitude, renderDepth]
   let filterFunc = () => true
@@ -203,6 +209,16 @@ const listen = () => {
     }
   })
 
+  $('.J_replay').on('click', () => {
+    fullpageInst.moveTo(1)
+  })
+
+  $('.J_discover').on('click', () => {
+    $('#app_start').hide()
+    $('.J_inner_container').removeClass('f-fixed')
+    $('.J_control').removeClass('f-hide')
+  })
+
   $(window).on('filter', (_, filterObject) => {
     getPlaneDataset().then(dataset => {
       launchMap(dataset, filterObject)
@@ -220,12 +236,31 @@ const listen = () => {
   })
 }
 
+const launchFullpage = () => {
+  $('.J_slider').each((index, dom) => {
+    $(dom).attr('src', window.config.sliders[index].image)
+  })
+
+  fullpageInst = new Fullpage('#app_start', {
+    autoScrolling: true,
+    scrollHorizontally: true,
+    licenseKey: 'dddddddd-dddddddd-dddddddd-dddddddd',
+    onLeave: (from, { index }) => {
+      if (index < 1 || index > 3) { return }
+      const { latlng, zoom } = window.config.sliders[index - 1]
+      map.flyTo(latlng, zoom)
+    },
+  })
+  window.f = fullpageInst
+}
+
 const start = () => {
   listen()
   getPlaneDataset().then(dataset => {
     launchMap(dataset)
     launchGraph(dataset)
   })
+  launchFullpage()
 }
 
 start()
