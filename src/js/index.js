@@ -9,10 +9,6 @@ import { getPlaneDataset } from './dataset'
 import 'fullpage.js/dist/fullpage.css'
 import './lib/cities'
 
-setTimeout(() => {
-  $('.J_discover').click()
-}, 2000)
-
 const depthColorList = [
   '#34B6B7',
   '#7BE39E',
