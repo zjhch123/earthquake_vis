@@ -8,6 +8,9 @@ const targetDOMId = '#magnitude'
 const containerDOM = '.J_panel3'
 let p5inst = null
 
+let maxCount = null
+let minCount = null
+
 const textLabels = [
   '< 4.5',
   '4.5-4.9',
@@ -27,8 +30,8 @@ const filterRanges = [
 const draw = (data) => {
   const sortedByCount = data.slice(0).sort((a, b) => a.count - b.count)
 
-  const minCount = _.first(sortedByCount).count
-  const maxCount = _.last(sortedByCount).count
+  minCount = _.isNull(minCount) ? _.first(sortedByCount).count : minCount
+  maxCount = _.isNull(maxCount) ? _.last(sortedByCount).count : maxCount
 
   const $dom = $(targetDOMId)
   const $container = $(containerDOM)
@@ -122,8 +125,8 @@ const draw = (data) => {
       selectedMagitude = []
     }
 
-    sketch.mouseReleased = () => {
-      if (window.IS_FILTERING) {
+    sketch.mouseReleased = (e) => {
+      if (window.IS_FILTERING && $.contains($dom[0], e.target)) {
         window.IS_FILTERING = false
         $(window).trigger('reset-filter')
         selectedMagitude = []

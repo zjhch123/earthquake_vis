@@ -1,7 +1,7 @@
 import $ from 'jquery'
 import _ from 'underscore'
 import Fullpage from 'fullpage.js'
-import { dataScale, colorScale, convertFeatureToData, isInRange } from './utils'
+import { dataScale, convertFeatureToData, isInRange } from './utils'
 import { PopupContent } from './popup-content'
 import { renderFrequency, renderMagnitude, renderDepth } from './graph'
 import { getPlaneDataset } from './dataset'
@@ -9,19 +9,20 @@ import { getPlaneDataset } from './dataset'
 import 'fullpage.js/dist/fullpage.css'
 import './lib/cities'
 
-const colorList = [
+const depthColorList = [
   '#34B6B7',
-  '#4AC5AF',
-  '#5FD3A6',
   '#7BE39E',
-  '#A1EDB8',
-  '#CEF8D6',
+  '#ECFFB1',
 ]
 
 const L = window.L
 
 let map = null
 let fullpageInst = null
+
+setInterval(() => {
+  console.log(map.getBounds())
+}, 2000)
 
 const launchMap = (() => {
   let pointLayer = null
@@ -32,7 +33,12 @@ const launchMap = (() => {
   let clickCount = 0
   let clickTriggerFromPoint = false
 
-  map = L.map('map').setView([8, 17], 3)
+  map = L.map('map', {
+    maxBounds: [
+      [-85, -220],
+      [85, 220],
+    ],
+  }).setView([8, 17], 3)
   L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiempoY2gxMjMiLCJhIjoiY2l1cDd4cWduMDAzMDJvbDhrY2Zta3NkNCJ9.3FmRDWqp0TXkgdDIWnM-vw', {
     maxZoom: 10,
     minZoom: 2,
@@ -105,9 +111,11 @@ const launchMap = (() => {
     return filter
   }
 
+  const filterCities = (cities) => cities.filter(({ population }) => population > 1000000)
+
   map.on('popupopen', (ev) => {
     const { lat, lng } = ev.popup._latlng
-    $('.J_closestTo').text(window.Cities.closestTo(lat, lng)[0].name)
+    $('.J_closestTo').text(filterCities(window.Cities.closestTo(lat, lng))[0].name)
   })
 
   map.on('click', () => {
@@ -127,9 +135,20 @@ const launchMap = (() => {
 
     pointLayer = L.geoJSON(data, {
       pointToLayer: function (feature, latlng) {
+        const depth = feature.geometry.coordinates[2]
+        let fillColor
+
+        if (depth < 70) {
+          fillColor = depthColorList[0]
+        } else if (depth < 300) {
+          fillColor = depthColorList[1]
+        } else {
+          fillColor = depthColorList[2]
+        }
+
         return L.circleMarker(latlng, {
           radius: dataScale(feature.properties.mag, size, [0, 16]),
-          fillColor: colorScale(feature.properties.mag, size, colorList),
+          fillColor: fillColor,
           stroke: false,
           fillOpacity: 0.5,
         })
@@ -144,7 +163,7 @@ const launchMap = (() => {
       const { geometry } = feature
       const id = feature.id
       const pointLatlngArray = [geometry.coordinates[1], geometry.coordinates[0]]
-      const city = window.Cities.closestTo(...pointLatlngArray)[0]
+      const city = filterCities(window.Cities.closestTo(...pointLatlngArray))[0]
       const cityLatlngArray = [city.point.lat, city.point.lng]
 
       if (id !== lastClickFeatureId) {
@@ -216,7 +235,7 @@ const listen = () => {
   $('.J_discover').on('click', () => {
     $('#app_start').hide()
     $('.J_inner_container').removeClass('f-fixed')
-    $('.J_control').removeClass('f-hide')
+    $('.J_control').removeClass('f-hide f-deephide')
   })
 
   $(window).on('filter', (_, filterObject) => {
@@ -234,6 +253,10 @@ const listen = () => {
     })
     window.IS_FILTERING = false
   })
+
+  $('.J_goNext').on('click', () => {
+    fullpageInst.moveTo(2)
+  })
 }
 
 const launchFullpage = () => {
@@ -246,8 +269,7 @@ const launchFullpage = () => {
     scrollHorizontally: true,
     licenseKey: 'dddddddd-dddddddd-dddddddd-dddddddd',
     onLeave: (from, { index }) => {
-      if (index < 1 || index > 3) { return }
-      const { latlng, zoom } = window.config.sliders[index - 1]
+      const { latlng, zoom } = window.config.sliders[index]
       map.flyTo(latlng, zoom)
     },
   })
@@ -259,8 +281,8 @@ const start = () => {
   getPlaneDataset().then(dataset => {
     launchMap(dataset)
     launchGraph(dataset)
+    launchFullpage()
   })
-  launchFullpage()
 }
 
 start()

@@ -11,6 +11,11 @@ html, body {
   .leaflet-container {
     font-family: inherit;
   }
+  .leaflet-control-zoom {
+    margin-left: 33px !important;
+    margin-top: 33px !important;
+    transform: scale(1.2);
+  }
 }
 .outer_container {
   z-index: 2;
@@ -299,6 +304,9 @@ html, body {
         letter-spacing: 0.94px;
         color: #000000;
       }
+    }
+    &.f-deephide {
+      opacity: 0;
     }
     &.f-hide {
       transform: translateY(calc(100% - 36px));

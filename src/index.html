@@ -13,6 +13,10 @@
     window.config = {
       sliders: [
         {
+          latlng: [8, 17],
+          zoom: 3,
+        },
+        {
           image: 'https://image.hduzplus.xyz/image/1576595227561.png',
           latlng: [1, 1],
           zoom: 5,
@@ -27,6 +31,11 @@
           latlng: [10, 1],
           zoom: 5,
         },
+        {
+          image: 'https://image.hduzplus.xyz/image/1576595227561.png',
+          latlng: [8, 17],
+          zoom: 3,
+        },
       ]
     }
     </script>
@@ -36,8 +45,8 @@
       <div class="section">
         <div class="m-card">
           <p class="u-title">Earthquakes: the 5 biggest in 21st century</p>
-          <div class="u-content">Seismologists have noticed an increase in high-magnitude, high-impact earthquakes in the last decade, says Mike, but there are few theories to explain this. “Energy released by earthquakes on a global scale in the last decade is much more than in the previous 25 to30 years,” he said. “However, the period 1952-1965 had equally as much energy released.”</div>
-          <span class="u-obj"></span>
+          <div class="u-content J_slider">Seismologists have noticed an increase in high-magnitude, high-impact earthquakes in the last decade, says Mike, but there are few theories to explain this. “Energy released by earthquakes on a global scale in the last decade is much more than in the previous 25 to30 years,” he said. “However, the period 1952-1965 had equally as much energy released.”</div>
+          <a href="javascript:;" class="u-obj J_goNext"></a>
         </div>
       </div>
       <div class="section">
@@ -57,6 +66,7 @@
       </div>
       <div class="section">
         <div class="m-card">
+          <img class="J_slider u-card-img">
           <div class="u-actions">
             <a href="javascript:;" class="J_replay replay">REPLAY</a>
             <a href="javascript:;" class="J_discover discover">DISCOVER</a>
@@ -69,7 +79,7 @@
         <div class="u-title">STONES UNTERNED</div>
       </header>
       <div class="map-container" id="map"></div>
-      <div class="m-control J_control f-hide">
+      <div class="m-control J_control f-hide f-deephide">
         <div class="m-actions">
           <a href="javascript:;" class="m-action J_display"></a>
           <div class="m-words">

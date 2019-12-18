@@ -7,11 +7,13 @@ import 'p5.js-svg'
 const targetDOMId = '#frequency'
 let p5inst = null
 
+let maxCount = null
+let minCount = null
+
 const draw = (data) => {
   const sortedByCount = data.slice(0).sort((a, b) => a.count - b.count)
-  const minCount = _.first(sortedByCount).count
-  const maxCount = _.last(sortedByCount).count
-
+  minCount = _.isNull(minCount) ? _.first(sortedByCount).count : minCount
+  maxCount = _.isNull(maxCount) ? _.last(sortedByCount).count : maxCount
   const $dom = $(targetDOMId)
   const domWidth = $dom.width()
   const domHeight = $dom.height()
@@ -53,8 +55,7 @@ const draw = (data) => {
       for (let i = 0; i < dataCount; i++) {
         const { date, count, timestamp } = data[i]
 
-        const value = dataScale(count, [minCount, maxCount], [graphHeight * 0.1, graphHeight * 0.9])
-
+        const value = dataScale(count, [0, maxCount], [graphHeight * 0.1, graphHeight * 0.9])
         const x = coordBarWidth + innerPaddingLeftRight + i * barSplitWidth + i * barWidth
         const y = graphHeight - value - coordBarWidth
         const offsetX = x + paddingLeftRight
@@ -110,8 +111,8 @@ const draw = (data) => {
       selectedTimestamps = []
     }
 
-    sketch.mouseReleased = () => {
-      if (window.IS_FILTERING) {
+    sketch.mouseReleased = (e) => {
+      if (window.IS_FILTERING && $.contains($dom[0], e.target)) {
         window.IS_FILTERING = false
         $(window).trigger('reset-filter')
         selectedTimestamps = []
@@ -148,6 +149,8 @@ const draw = (data) => {
   p5inst = new P5(inst, $dom[0])
 }
 
+let past31Days = null
+
 export const renderFrequency = (parsedData) => {
   if (p5inst) {
     p5inst.remove()
@@ -173,5 +176,18 @@ export const renderFrequency = (parsedData) => {
     return arr
   }, [])
 
-  draw(data)
+  past31Days = _.isNull(past31Days) ? data.map(({ timestamp }) => timestamp) : past31Days
+
+  const renderData = past31Days.slice(0).map((pday) => {
+    const t = _.find(data, { timestamp: pday })
+    const d = new Date(pday)
+
+    return {
+      date: `${d.getMonth() + 1}/${d.getDate()}`,
+      count: t ? t.count : 0,
+      timestamp: pday,
+    }
+  })
+
+  draw(renderData)
 }

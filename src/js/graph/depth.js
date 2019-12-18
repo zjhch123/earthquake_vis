@@ -10,6 +10,9 @@ const targetDOMId = '#depth'
 const containerDOM = '.J_panel4'
 let p5inst = null
 
+let maxCount = null
+let minCount = null
+
 const textLabels = [
   '< 70',
   '< 300',
@@ -22,6 +25,12 @@ const levelLabels = [
   'deep',
 ]
 
+const depthColorList = [
+  '52,182,183',
+  '123,227,158',
+  '236,255,177',
+]
+
 const filterRanges = [
   [0, 70],
   [70, 300],
@@ -30,8 +39,8 @@ const filterRanges = [
 
 const draw = (data) => {
   const sortedByCount = data.slice(0).sort((a, b) => a.count - b.count)
-  const minCount = _.first(sortedByCount).count
-  const maxCount = _.last(sortedByCount).count
+  minCount = _.isNull(minCount) ? _.first(sortedByCount).count : minCount
+  maxCount = _.isNull(maxCount) ? _.last(sortedByCount).count : maxCount
 
   const $dom = $(targetDOMId)
   const $container = $(containerDOM)
@@ -80,13 +89,13 @@ const draw = (data) => {
 
         if (selectedDepth.length > 0) {
           if (selectedDepth.includes(i)) {
-            sketch.fill('rgb(49,175,211)')
+            sketch.fill(`rgb(${depthColorList[i]})`)
           } else {
-            sketch.fill('rgba(49,175,211,.2)')
+            sketch.fill(`rgba(${depthColorList[i]},.2)`)
           }
         } else {
           // 没有画好 或者 啥也没画
-          sketch.fill('rgb(49,175,211)')
+          sketch.fill(`rgb(${depthColorList[i]})`)
         }
 
         // 柱子
@@ -132,8 +141,8 @@ const draw = (data) => {
       selectedDepth = []
     }
 
-    sketch.mouseReleased = () => {
-      if (window.IS_FILTERING) {
+    sketch.mouseReleased = (e) => {
+      if (window.IS_FILTERING && $.contains($dom[0], e.target)) {
         window.IS_FILTERING = false
         selectedDepth = []
         $(window).trigger('reset-filter')
