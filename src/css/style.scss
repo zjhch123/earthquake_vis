@@ -84,6 +84,7 @@ html, body {
       height: 72px;
       width: 100%;
       display: flex;
+      z-index: 2;
       a {
         width: 100%;
         height: 100%;
@@ -133,9 +134,26 @@ html, body {
       color: #9b9b9b;
     }
   }
-  #map {
+  #map, #map2 {
+    position: absolute !important;
+    left: 0;
+    bottom: 0;
+    top: 69px;
     width: 100%;
+    min-width: $minWidth;
     height: calc(100vh - 69px);
+    z-index: 1;
+    &.f-hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .m-bg {
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      height: 100%;
+    }
   }
   .m-control {
     position: absolute;

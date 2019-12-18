@@ -9,6 +9,10 @@ import { getPlaneDataset } from './dataset'
 import 'fullpage.js/dist/fullpage.css'
 import './lib/cities'
 
+setTimeout(() => {
+  $('.J_discover').click()
+}, 2000)
+
 const depthColorList = [
   '#34B6B7',
   '#7BE39E',
@@ -19,10 +23,6 @@ const L = window.L
 
 let map = null
 let fullpageInst = null
-
-setInterval(() => {
-  console.log(map.getBounds())
-}, 2000)
 
 const launchMap = (() => {
   let pointLayer = null
@@ -35,8 +35,8 @@ const launchMap = (() => {
 
   map = L.map('map', {
     maxBounds: [
-      [-85, -220],
-      [85, 220],
+      [-120, -280],
+      [120, 280],
     ],
   }).setView([8, 17], 3)
   L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiempoY2gxMjMiLCJhIjoiY2l1cDd4cWduMDAzMDJvbDhrY2Zta3NkNCJ9.3FmRDWqp0TXkgdDIWnM-vw', {
@@ -75,8 +75,8 @@ const launchMap = (() => {
       color: '#CA8802',
       pane: 'tilePane',
     }).addTo(map)
-    cityCircleLayer = L.circle(to, {
-      radius: 5000,
+    cityCircleLayer = L.circleMarker(to, {
+      radius: 4,
       color: '#CA8802',
       fill: true,
       fillColor: '#CA8802',
@@ -219,6 +219,18 @@ const launchGraph = ({ data }, filterObject) => {
   graphs.forEach(render => render(filteredData))
 }
 
+const switchToMap1 = () => {
+  $('.J_choose_plane_stack').find('.J_slider').removeClass('f-right').addClass('f-left')
+  $('#map').removeClass('f-hide')
+  $('#map2').addClass('f-hide')
+}
+
+const switchToMap2 = () => {
+  $('.J_choose_plane_stack').find('.J_slider').removeClass('f-left').addClass('f-right')
+  $('#map2').removeClass('f-hide')
+  $('#map').addClass('f-hide')
+}
+
 const listen = () => {
   $('.J_display').on('click', () => {
     if ($('.J_control').hasClass('f-hide')) {
@@ -257,13 +269,26 @@ const listen = () => {
   $('.J_goNext').on('click', () => {
     fullpageInst.moveTo(2)
   })
+
+  $('.J_choose_plane_stack').on('click', function () {
+    const $slider = $(this).find('.J_slider')
+    if ($slider.hasClass('f-left')) {
+      switchToMap2()
+    } else {
+      switchToMap1()
+    }
+  })
+
+  $('.J_plane').on('click', () => {
+    switchToMap1()
+  })
+
+  $('.J_stack').on('click', () => {
+    switchToMap2()
+  })
 }
 
 const launchFullpage = () => {
-  $('.J_slider').each((index, dom) => {
-    $(dom).attr('src', window.config.sliders[index].image)
-  })
-
   fullpageInst = new Fullpage('#app_start', {
     autoScrolling: true,
     scrollHorizontally: true,
