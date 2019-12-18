@@ -30,14 +30,11 @@ const launchMap = (() => {
   let clickTriggerFromPoint = false
 
   map = L.map('map', {
-    maxBounds: [
-      [-120, -280],
-      [120, 280],
-    ],
-  }).setView([8, 17], 3)
+    maxBounds: window.config.maxBounds,
+  }).setView(window.config.initLatlng, window.config.initZoom)
   L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiempoY2gxMjMiLCJhIjoiY2l1cDd4cWduMDAzMDJvbDhrY2Zta3NkNCJ9.3FmRDWqp0TXkgdDIWnM-vw', {
-    maxZoom: 10,
-    minZoom: 2,
+    maxZoom: window.config.maxZoom,
+    minZoom: window.config.minZoom,
     id: 'mapbox/dark-v10',
   }).addTo(map)
 
