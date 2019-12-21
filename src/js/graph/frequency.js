@@ -122,7 +122,7 @@ const draw = (data) => {
 
       isDrawing = false
 
-      const [ startX ] = drawStartPosition
+      const [startX] = drawStartPosition
       const endX = sketch.pmouseX
 
       selectedTimestamps = data

@@ -136,7 +136,7 @@ const draw = (data) => {
 
       isDrawing = false
 
-      const [ , startY ] = drawStartPosition
+      const [, startY] = drawStartPosition
       const endY = sketch.pmouseY
 
       selectedMagitude = data

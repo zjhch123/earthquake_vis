@@ -1,15 +1,15 @@
 # Emiya
 
-## Update
-use emiya-scripts!
+## Usage
 
-```
+```shell
 npm i
 npm run dev
 npm run build
 ```
 
-## For eject
-```
+## Eject
+
+```shell
 npm run eject
 ```

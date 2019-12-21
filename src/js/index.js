@@ -4,21 +4,22 @@ import Fullpage from 'fullpage.js'
 import { dataScale, convertFeatureToData, isInRange } from './utils'
 import { PopupContent } from './popup-content'
 import { renderFrequency, renderMagnitude, renderDepth } from './graph'
-import { getPlaneDataset } from './dataset'
+import { getPlaneDataset, getSliderData } from './dataset'
 
 import 'fullpage.js/dist/fullpage.css'
 import './lib/cities'
 
 const depthColorList = [
-  '#34B6B7',
   '#7BE39E',
-  '#ECFFB1',
+  '#34B6B7',
+  '#146968',
 ]
 
 const L = window.L
 
 let map = null
 let fullpageInst = null
+let scaleRange = [20, 80]
 
 const launchMap = (() => {
   let pointLayer = null
@@ -28,6 +29,10 @@ const launchMap = (() => {
   let lastClickFeatureId = null
   let clickCount = 0
   let clickTriggerFromPoint = false
+
+  if (map) {
+    map.remove()
+  }
 
   map = L.map('map', {
     maxBounds: window.config.maxBounds,
@@ -140,7 +145,7 @@ const launchMap = (() => {
         }
 
         return L.circleMarker(latlng, {
-          radius: dataScale(feature.properties.mag, size, [0, 16]),
+          radius: dataScale(feature.properties.mag, size, scaleRange),
           fillColor: fillColor,
           stroke: false,
           fillOpacity: 0.5,
@@ -241,6 +246,12 @@ const listen = () => {
     $('#app_start').hide()
     $('.J_inner_container').removeClass('f-fixed')
     $('.J_control').removeClass('f-hide f-deephide')
+    getPlaneDataset().then(dataset => {
+      scaleRange = [1, 16]
+      launchMap(dataset)
+      launchGraph(dataset)
+      map.flyTo(window.config.initLatlng, window.config.initZoom)
+    })
   })
 
   $(window).on('filter', (_, filterObject) => {
@@ -296,10 +307,10 @@ const launchFullpage = () => {
 
 const start = () => {
   listen()
-  getPlaneDataset().then(dataset => {
+  getSliderData().then(dataset => {
     launchMap(dataset)
-    launchGraph(dataset)
     launchFullpage()
+    getPlaneDataset()
   })
 }
 
